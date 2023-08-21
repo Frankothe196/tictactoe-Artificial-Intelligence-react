@@ -64,3 +64,16 @@ export const Message = styled.button`
   font-size: 5rem;
   z-index: 10;
 `
+
+
+export const MessageTurn = styled.h2`
+  position: fixed;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: auto;
+  height: auto;
+  text-align: center;
+  font-size: large;
+  z-index: 10;
+`

@@ -1,7 +1,8 @@
+
 import React, { useState } from "react";
 import { GameContainer, PanelDiv, Message, MessageTurn } from "./App.Styles.js";
 
-const Tictactoe = () => {
+const TicTacToe = () => {
   // Todos
 
   // Game state
@@ -33,170 +34,34 @@ const Tictactoe = () => {
   // Player action
   const playerAction = (player, position) => {
     // If the opponent is a player and
-      setTurn((curr) => {
-        if (curr === "X") {
-          return "O";
-        } else {
-          return "X";
-        }
-      });
-
-      updateGameState((curr) => {
-        curr[position[0]][position[1]] = player;
-        // Check for a winner
-        if (!gameEnded(curr)) {
-          return curr;
-        }
-        return;
-  })
-}
-
-  // Minimax algorithm. Refer to https://en.wikipedia.org/wiki/Minimax for understanding of the code.
-  // But Basically, for each option in a given state, we iteratively explore all options one can take in that rabbit hole until the game until the game is terminal/ended
-  // As two sides are in opposition, We then compare the score and choose either the highest or lowest score depedning on whether we want to minimize or maximize the score.
-  // We however need to consider our opponents available moves so we choose the lowest or highest score available to them.
-  const miniMax = () => {
-    //Define helper functions min and max, terminal, utlilty
-    // define terminal
-    function actions(board) {
-      let arr = [];
-      for (let row = 0; row < 3; row++) {
-        for (let column = 0; column < 3; column++) {
-          if (board[row][column] === "") arr.push([row, column]);
-        }
+    setTurn((curr) => {
+      if (curr === "X") {
+        return "O";
+      } else {
+        return "X";
       }
-      return arr;
-    }
+    });
 
-    function terminal(board) {
-      //Returns True if game is over, False otherwise.
-      //get number of available actions
-
-      let cnt_empty = actions(board);
-
-      if (cnt_empty == 0) return true;
-      else if (winnerState(board) != "") return true;
-      else return false;
-    }
-
-    function utility(board) {
-      //Returns 1 if X has won the game, -1 if O has won, 0 otherwise.
-
-      if (winnerState(board) == "O") return 1;
-      else if (winnerState(board) == "X") return -1;
-      else return 0;
-    }
-
-    // define max function
-    function maxValue(state) {
-      if (terminal(state)) return utility(state);
-
-      let v = -1000000000000;
-      actions(state).forEach((action) => {
-        v = Math.max(v, minValue(result(state, action)));
-      });
-      return v;
-    }
-
-    // define min function
-    function minValue(state) {
-      if (terminal(state)) return utility(state);
-
-      let v = 1000000000000;
-      actions(state).forEach((action) => {
-        v = Math.min(v, maxValue(result(state, action)));
-      });
-      return v;
-    }
-
-    // Make unlicked copy of the game state
-    // We don't want to modify the current game state
-    let temp_board = JSON.parse(JSON.stringify(gameState));
-    // console.log(temp_board)
-
-    //get possible actions
-    let final;
-    if (actions(temp_board).length == 0) {
-      return null;
-    } else {
-      console.log(actions(temp_board));
-      let turn = player(temp_board);
-      console.log(turn);
-      if (turn == "X") {
-        // Max
-        let arr = {};
-        actions(temp_board).forEach((action) => {
-          arr[minValue(result(temp_board, action))] = action;
-        });
-        //lets save the value as a dict since we only need one value per utility
-        // choose the hightest value of the options from min
-        console.log(arr);
-        final = arr[Math.max(...Object.keys(arr))];
-      } else if (turn == "O") {
-        // Min
-        let arr = {};
-        actions(temp_board).forEach((action) => {
-          arr[maxValue(result(temp_board, action))] = action;
-        });
-        //choose the smallest value of the options from min
-        final = arr[Math.min(...Object.keys(arr))];
+    updateGameState((curr) => {
+      curr[position[0]][position[1]] = player;
+      // Check for a winner
+      if (!gameEnded(curr)) {
+        return curr;
       }
-      //lets save the value as a dict since we only need one value per utility
-      // choose the hightest value of the options from min
-    }
-    console.log(final);
-    if (final) {
-      return final;
-    } else {
-      return "";
-    }
+      return;
+    });
   };
 
-  const player = (temp_board) => {
-    let cnt = 0;
-    for (let row = 0; row < 3; row++) {
-      for (let column = 0; column < 3; column++) {
-        if (temp_board[row][column] === "") cnt += 1;
-      }
-    }
-
-    let turn = "";
-
-    if ((cnt = 0)) turn = "O";
-    else if (cnt % 2 == 0) turn = "O";
-    else if (cnt % 2 != 0) turn = "X";
-
-    return turn;
-  };
-
-  const result = (board, action) => {
-    // Returns the board that results from making move (i, j) on the board.
-
-    // A normal copy doesnt work well as it seems to create a reference; temp_board = board
-    // Found deepcopy recommendation in the project instructions
-    let temp_board = board;
-
-    let turn = player(temp_board);
-
-    if (temp_board[action[0]][action[1]] === "") {
-      temp_board[action[0]][action[1]] = turn;
-      return temp_board;
-    } else {
-      return "Invalid Seclection";
-    }
-  };
-
-  //For the Ai Action we simply want to pass the game state to the minimax function and determine the best play AI can Mae
-  // Not well have to play right after the player, and return their turn
+  // For the Ai Action we simply want to pass the game state to the minimax function and determine the best play AI can Make
   const aiAction = (player, position) => {
-    //lets make ai the X player so this chain of events canonly be called by O
+    // lets make ai the X player so this chain of events can only be called by O
     if (player === "O") {
       playerAction(player, position);
       // get best play for AI via minimax function
       setAIThinking(true);
       updateGameState((curr) => {
-        let pred = miniMax();
-        console.log(pred);
+        let board =JSON.stringify(curr)
+        let pred = miniMax(board);
         if (pred) curr[pred[0]][pred[1]] = "X";
         setAIThinking(false);
         setTurn("O");
@@ -208,6 +73,141 @@ const Tictactoe = () => {
     }
     // return(miniMax)
   };
+
+  // Minimax algorithm. Refer to https://en.wikipedia.org/wiki/Minimax for understanding of the code.
+  // But Basically, for each option in a given state, we iteratively explore all options one can take in that rabbit hole until the game until the game is terminal/ended
+  // As two sides are in opposition, We then compare the score and choose either the highest or lowest score depending on whether we want to minimize or maximize the score.
+  // We however need to consider our opponents available moves so we choose the lowest or highest score available to them.
+  function terminal(board) {
+    //Returns True if game is over, False otherwise.
+    //get number of available actions
+    
+    // To set the AI difficulty we will break the code below to make it easier for the human player
+    // let cnt_empty = actions(board).length;
+
+    let cnt_empty
+
+    cnt_empty = actions(board).length;
+    
+    if (cnt_empty == 0) return true;
+    else if (winnerState(board) != "") return true;
+    else return false;
+  }
+
+  function actions(board) {
+    let arr = [];
+    for (let row = 0; row < 3; row++) {
+      for (let column = 0; column < 3; column++) {
+        if (board[row][column] === "") arr.push([row, column]);
+      }
+    }
+    return arr;
+  }
+
+  function utility(board) {
+    // Returns 1 if O has won the game, -1 if X has won, 0 otherwise.
+    if (winnerState(board) == "O"){
+      return 1;
+    } 
+    else if (winnerState(board) == "X"){
+      return -1;
+    }
+    else return 0;
+  }
+
+  // define max function
+  function maxValue(state) {
+    if (terminal(state)) return utility(state);
+
+    let v = -1000000000000;
+    actions(state).forEach((action) => {
+      v = Math.max(v, minValue(result(state, action)));
+    });
+    return v;
+  }
+
+  // define min function
+  function minValue(state) {
+    if (terminal(state)) return utility(state);
+
+    let v = 1000000000000;
+    actions(state).forEach((action) => {
+      v = Math.min(v, maxValue(result(state, action)));
+    });
+    return v;
+  }
+
+
+  const miniMax = (passed_state) => {
+    let start_state = JSON.parse(passed_state)
+    // Define helper functions min and max, terminal, utililty
+
+
+    // Make unclicked copy of the game state
+    // We don't want to modify the current game state
+    let temp_board = [];
+    temp_board = JSON.parse(JSON.stringify(start_state));
+
+    // return none if these no space left on the board
+    if (actions(temp_board).length == 0) {
+      return null;
+    } else {
+      let turn = player(temp_board);
+      if (turn == "O") {
+        // Max
+        let arr = {};
+        actions(temp_board).forEach((action) => {
+          arr[maxValue(result(temp_board, action))] = action;
+        });
+        // lets save the value as a dict since we only need one value per utility
+        // choose the hightest value of the options from min
+        return arr[Math.max(...Object.keys(arr))];
+      } else if (turn == "X") {
+        // Min
+        let arr = {};
+        actions(temp_board).forEach((action) => {
+          arr[minValue(result(temp_board, action))] = action;
+        });
+        // choose the smallest value of the options from min
+        return arr[Math.min(...Object.keys(arr))];
+      }
+    }
+  };
+
+
+  //Find Player from board State
+  const player = (board) => {
+    let count = 0;
+    for (let row = 0; row < 3; row++) {
+      for (let column = 0; column < 3; column++) {
+        if (board[row][column] === "") count += 1;
+      }
+    }
+    let turn = "";
+
+    if (terminal(board)) turn = "O";
+    else if (count % 2 == 0) turn = "X";
+    else if (count % 2 != 0) turn = "O";
+
+    return turn;
+  };
+
+  const result = (board, action) => {
+    // Returns the board that results from making move (i, j) on the board.
+
+    // A normal copy doesnt work well as it seems to create a reference; temp_board = board
+
+    let temp_board = JSON.parse(JSON.stringify(board));
+
+    let turn = player(temp_board);
+    if (temp_board[action[0]][action[1]] === "") {
+      temp_board[action[0]][action[1]] = turn;
+      return temp_board;
+    } else {
+      return "Invalid Seclection";
+    }
+  };
+
 
   const winnerState = (state) => {
     for (let x = 0; x < 3; x++) {
@@ -332,10 +332,11 @@ const Tictactoe = () => {
     );
   };
 
-  // return the parent component
+  // return the Main Game component
   return (
     <>
       <Panel />
+      
       {opponent && (
         <MessageTurn>{AIThinking ? "AI is thinking" : "Your turn"}</MessageTurn>
       )}
@@ -351,4 +352,4 @@ const Tictactoe = () => {
   );
 };
 
-export default Tictactoe;
+export default TicTacToe;

@@ -10,6 +10,3 @@ Simple app that implements the minimax algorithm to play tic tac toe.
   title="Tic Tac Toe with React"
   style="display: inline-block; margin: 0 auto; max-width: 80%"/>
 
-The libraries used to develop this app are React and OpenLayers
-
-**Feel free to use this code, however kindly share and give reasonable attribution of my work.**
